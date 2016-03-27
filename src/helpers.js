@@ -101,5 +101,17 @@ export function createGrouper(map, fn, col) {
   }
 }
 
+export function createDummyGrouper(map, cols, I) {
+  return function(row) {
+    cols.map(col => {
+      if (row[I[col]]) {
+        map.has(col)
+          ? map.get(col).push(row)
+          : map.set(col, [row])
+      }
+    })
+  }
+}
+
 export const isfunc = fn => fn && typeof fn == 'function'
 export const arrayToIndex = arr => zipObject(arr, [...arr.keys()])

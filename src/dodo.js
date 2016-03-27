@@ -6,8 +6,9 @@ import flatten from 'lodash/flatten'
 import {map, filter, drop, take, transduce} from 'transducers.js'
 
 import {
-  identity, combineReducers, REDUCERS, spread, createGrouper, isfunc,
-  arrayToIndex, compose, transduceNoBreak, arrayReducer
+  identity, combineReducers, REDUCERS, spread, createGrouper,
+  createDummyGrouper, isfunc, arrayToIndex, compose, transduceNoBreak,
+  arrayReducer
 } from './helpers'
 
 const action = Symbol('action')
@@ -204,13 +205,18 @@ export default class Dodo {
 
   mean() { return this[dispatchReduce](...REDUCERS.mean) }
 
-  groupBy(name, fn) {
-    invariant(name, `Dodo#groupBy(name, fn) - name is required`)
-    invariant(this[meta].columns.has(name),
-      `Dodo#group(name) — name ${name} not in index`)
+  groupBy(colOrCols, fn) {
+    // invariant(colOrCols, `Dodo#groupBy(name, fn) - name is required`)
+    // invariant(this[meta].columns.has(name),
+      // `Dodo#group(name) — name ${name} not in index`)
 
     const map = new Map()
-    const grouper = createGrouper(map, fn, this[index][name])
+    let grouper
+    if (colOrCols.constructor.toString().indexOf('String') !== -1) {
+      grouper = createGrouper(map, fn, this[index][colOrCols])
+    } else {
+      grouper = createDummyGrouper(map, colOrCols, this[index])
+    }
     const array = this.toArray()
     const len = array.length
     let i = -1
